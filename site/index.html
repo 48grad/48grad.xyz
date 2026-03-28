@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--fg);font-family:'Courier New',Courier,mono
 .tree-children.open{display:block}
 .tree-file{padding:.15rem 0;cursor:pointer;color:var(--fg2);font-size:.88rem}
 .tree-file:hover{color:var(--fg);text-decoration:underline}
-.tree-file.active{color:#c33;text-decoration:none;font-weight:700}
+.tree-file.active{color:#c33;text-decoration:underline;font-weight:700}
 .sidebar-footer{margin-top:auto;padding-top:1rem}
 .gh-link{display:flex;flex-direction:column;text-decoration:none;color:var(--fg4);font-size:.62rem}
 .gh-link-row{display:flex;align-items:center;gap:4px}
@@ -275,7 +275,7 @@ function showWelcome(){
     Object.assign(fC,data.contents);
     aF=data.tree;
     aF.forEach(i=>i._lp=i.path.toLowerCase());
-    $('build-info').textContent=data.commitHash?`${data.buildTime?.substring(0,10)} · ${data.commitHash}`:'';
+    $('build-info').textContent=data.commitHash?`Build: ${data.commitHash} · ${data.buildTime?.substring(0,10)}`:'';
     $t.innerHTML='';
     buildTreeFromFlat(aF,$t);
     if(fC['README.md'])loadFile('README.md',document.querySelector('.static-files .tree-file'));
