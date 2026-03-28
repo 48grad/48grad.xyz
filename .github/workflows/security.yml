@@ -1,0 +1,95 @@
+name: Cloudflare Security
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/security.yml'
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    env:
+      ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      AUTH: "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}"
+      API: "https://api.cloudflare.com/client/v4/zones"
+    steps:
+      - name: SSL/TLS — Full (Strict)
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/ssl" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"strict"}'
+
+      - name: Always Use HTTPS
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/always_use_https" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"on"}'
+
+      - name: Minimum TLS 1.2
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/min_tls_version" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"1.2"}'
+
+      - name: Enable HSTS (1 year, includeSubDomains, preload)
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/security_header" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":{"strict_transport_security":{"enabled":true,"max_age":31536000,"include_subdomains":true,"preload":true,"nosniff":true}}}'
+
+      - name: Security Level — High
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/security_level" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"high"}'
+
+      - name: Browser Integrity Check
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/browser_check" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"on"}'
+
+      - name: Email Obfuscation
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/email_obfuscation" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"on"}'
+
+      - name: Hotlink Protection
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/hotlink_protection" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"on"}'
+
+      - name: Bot Fight Mode
+        run: |
+          curl -sf -X POST "$API/$ZONE/bot_management" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"fight_mode":true}' 2>/dev/null || \
+          curl -sf -X PUT "$API/$ZONE/bot_management" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"fight_mode":true}' 2>/dev/null || true
+
+      - name: Block AI scrapers (robots.txt WAF rule)
+        run: |
+          # Create WAF custom rule to block known AI crawlers
+          curl -sf -X POST "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{
+              "rules": [{
+                "expression": "(cf.verified_bot_category eq \"AI Crawler\")",
+                "action": "block",
+                "description": "Block AI scrapers"
+              }]
+            }' 2>/dev/null || true
+
+      - name: Scrape Shield — Server Side Excludes
+        run: |
+          curl -sf -X PATCH "$API/$ZONE/settings/server_side_exclude" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"value":"on"}'
+
+      - name: Summary
+        run: echo "Security settings applied to zone $ZONE"

@@ -8,41 +8,49 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js" integrity="sha384-odPBjvtXVM/5hOYIr3A1dB+flh0c3wAT3bSesIOqEGmyUA4JoKf/YTWy0XKOYAY7" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js" integrity="sha384-+VfUPEb0PdtChMwmBcBmykRMDd+v6D/oFmB3rZM/puCMDYcIvF968OimRh4KQY9a" crossorigin="anonymous"></script>
 <style>
+:root{--bg:#c8c8c4;--fg:#111;--fg2:#444;--fg3:#555;--fg4:#777;--fg5:#888;--fg6:#999;--border:#aaa;--border2:#bbb;--pre-bg:#b0b0ac;--pre-border:#888;--search-focus:#555;--mark-fg:#111}
+.dark{--bg:#1a1a1a;--fg:#ccc;--fg2:#aaa;--fg3:#999;--fg4:#888;--fg5:#777;--fg6:#666;--border:#333;--border2:#444;--pre-bg:#252525;--pre-border:#555;--search-focus:#aaa;--mark-fg:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;font-size:15px;line-height:1.65}
+body{background:var(--bg);color:var(--fg);font-family:'Courier New',Courier,monospace;font-size:15px;line-height:1.65;transition:background .2s,color .2s}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:max-content;min-width:180px;flex-shrink:0;border-right:1px solid #aaa;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:2rem 1.2rem 1rem}
-.sidebar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
-.sidebar-header a{color:#111;text-decoration:none;font-size:1.1rem}
+.sidebar{width:max-content;min-width:180px;flex-shrink:0;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:2rem 1.2rem 1rem}
+.sidebar-header{display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
+.sidebar-header a{color:var(--fg);text-decoration:none;font-size:1.1rem}
 .sidebar-header a:hover{text-decoration:underline}
+.theme-toggle{position:relative;width:28px;height:16px;flex-shrink:0;cursor:pointer}
+.theme-toggle input{display:none}
+.theme-toggle span{position:absolute;inset:0;background:var(--border);border-radius:8px;transition:background .2s}
+.theme-toggle span::before{content:'';position:absolute;width:12px;height:12px;left:2px;top:2px;background:var(--bg);border-radius:50%;transition:transform .2s}
+.theme-toggle input:checked+span{background:var(--fg5)}
+.theme-toggle input:checked+span::before{transform:translateX(12px)}
 .static-files{margin-bottom:2rem}
 .search-wrap{margin-bottom:1rem}
-.search-wrap input{width:100%;background:none;border:none;border-bottom:1px solid #aaa;font-family:inherit;font-size:.78rem;color:#111;padding:.2rem 0;outline:none}
-.search-wrap input::placeholder{color:#999}
-.search-wrap input:focus{border-bottom-color:#555}
-.search-result-snippet{font-size:.65rem;color:#888;padding-left:.5rem}
-.search-result-snippet mark{background:none;color:#111;font-weight:700}
+.search-wrap input{width:100%;background:none;border:none;border-bottom:1px solid var(--border);font-family:inherit;font-size:.78rem;color:var(--fg);padding:.2rem 0;outline:none}
+.search-wrap input::placeholder{color:var(--fg6)}
+.search-wrap input:focus{border-bottom-color:var(--search-focus)}
+.search-result-snippet{font-size:.65rem;color:var(--fg5);padding-left:.5rem}
+.search-result-snippet mark{background:none;color:var(--mark-fg);font-weight:700}
 .tree{font-size:.88rem;overflow-y:auto;flex-grow:1}
 .tree-folder{margin-bottom:.2rem}
-.tree-folder-name{display:flex;align-items:center;gap:.35rem;cursor:pointer;color:#555;text-transform:uppercase;font-size:.72rem;letter-spacing:.1em;padding:.2rem 0}
-.tree-children{padding-left:.8rem;border-left:1px solid #bbb;margin-left:.3rem;display:none}
+.tree-folder-name{display:flex;align-items:center;gap:.35rem;cursor:pointer;color:var(--fg3);text-transform:uppercase;font-size:.72rem;letter-spacing:.1em;padding:.2rem 0}
+.tree-children{padding-left:.8rem;border-left:1px solid var(--border2);margin-left:.3rem;display:none}
 .tree-children.open{display:block}
-.tree-file{padding:.15rem 0;cursor:pointer;color:#444;font-size:.88rem}
-.tree-file:hover,.tree-file.active{color:#111;text-decoration:underline}
+.tree-file{padding:.15rem 0;cursor:pointer;color:var(--fg2);font-size:.88rem}
+.tree-file:hover,.tree-file.active{color:var(--fg);text-decoration:underline}
 .sidebar-footer{margin-top:auto;padding-top:1rem}
-.gh-link{display:flex;flex-direction:column;text-decoration:none;color:#777;font-size:.62rem}
+.gh-link{display:flex;flex-direction:column;text-decoration:none;color:var(--fg4);font-size:.62rem}
 .gh-link-row{display:flex;align-items:center;gap:4px}
-.gh-link svg{fill:#777;flex-shrink:0}
-.gh-link:hover{color:#111}
-.gh-link:hover svg{fill:#111}
-.build-info{display:block;font-size:.55rem;color:#999;margin-top:4px;white-space:nowrap}
+.gh-link svg{fill:var(--fg4);flex-shrink:0}
+.gh-link:hover{color:var(--fg)}
+.gh-link:hover svg{fill:var(--fg)}
+.build-info{display:block;font-size:.55rem;color:var(--fg6);margin-top:4px;white-space:nowrap}
 .main{flex:1;padding:2.5rem 3rem 6rem;max-width:720px}
-.breadcrumb{font-size:.7rem;color:#888;margin-bottom:1.5rem}
-.content h1{font-size:1.4rem;font-weight:400;margin-bottom:1rem;border-bottom:1px solid #aaa}
-.content pre{background:#b0b0ac;padding:1rem;border-left:2px solid #888;overflow-x:auto;margin-bottom:1rem}
+.breadcrumb{font-size:.7rem;color:var(--fg5);margin-bottom:1.5rem}
+.content h1{font-size:1.4rem;font-weight:400;margin-bottom:1rem;border-bottom:1px solid var(--border)}
+.content pre{background:var(--pre-bg);padding:1rem;border-left:2px solid var(--pre-border);overflow-x:auto;margin-bottom:1rem}
 .raw-text{white-space:pre-wrap;font-family:inherit}
 .content-plain p{margin-bottom:1rem}
-.hljs{background:transparent!important;padding:0!important}
+.hljs{background:transparent!important;padding:0!important;color:var(--fg)!important}
 </style>
 </head>
 <body>
@@ -50,6 +58,7 @@ body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;f
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="#" onclick="showWelcome()">48grad.xyz</a>
+      <label class="theme-toggle"><input type="checkbox" id="theme-cb" onchange="toggleTheme(this.checked)"><span></span></label>
     </div>
     <div class="static-files">
       <div class="tree-file" onclick="loadFile('README.md',this)">README.md</div>
@@ -75,6 +84,17 @@ body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;f
   </main>
 </div>
 <script>
+function toggleTheme(dark){
+  document.documentElement.classList.toggle('dark',dark);
+  localStorage.setItem('theme',dark?'dark':'light');
+}
+(()=>{
+  const saved=localStorage.getItem('theme');
+  const dark=saved?saved==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.classList.toggle('dark',dark);
+  document.getElementById('theme-cb').checked=dark;
+})();
+
 let aF=[],aE=null;
 const fC={},rC={},dD=new WeakMap();
 const EM={yml:'yaml',yaml:'yaml',json:'json',js:'javascript',ts:'typescript',
