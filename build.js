@@ -33,7 +33,7 @@ async function build() {
     const info = await stat(file);
     if (info.size > MAX_SIZE) continue;
     const path = relative(GUIDES_DIR, file).replace(/\\/g, '/');
-    tree.push({ path, type: 'blob' });
+    tree.push({ path });
     contents[path] = await readFile(file, 'utf-8');
   }
 

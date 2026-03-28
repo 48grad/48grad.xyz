@@ -35,7 +35,7 @@ function buildTreeFromFlat(items,c,depth){
   Object.keys(dirs).sort().forEach(function(d){
     var f=document.createElement('div');
     f.className='tree-folder';
-    f.innerHTML='<div class="tree-folder-name"><span class="arrow">\u25B6</span>'+esc(d)+'</div><div class="tree-children"></div>';
+    f.innerHTML='<div class="tree-folder-name">\u25B6'+esc(d)+'</div><div class="tree-children"></div>';
     dD.set(f,{items:dirs[d],depth:depth+1});
     fg.appendChild(f);
   });

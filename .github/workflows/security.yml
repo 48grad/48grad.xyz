@@ -60,5 +60,14 @@ jobs:
               -d "{\"rules\": $RULES}" | jq '{success}'
           fi
 
+      - name: Enable DNSSEC
+        run: |
+          echo "--- DNSSEC ---"
+          RESP=$(curl -s -X PATCH "$API/$ZONE/dnssec" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"status":"active"}')
+          OK=$(echo "$RESP" | jq -r '.success // false')
+          if [ "$OK" = "true" ]; then echo "OK"; else echo "$RESP" | jq -r '.errors[0].message // "Unknown error"'; fi
+
       - name: Summary
         run: echo "Done. Enable Bot Fight Mode manually in Cloudflare Dashboard > Security > Bots."
