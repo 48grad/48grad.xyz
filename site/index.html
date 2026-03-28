@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -15,10 +15,6 @@ body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;f
 .sidebar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
 .sidebar-header a{color:#111;text-decoration:none;font-size:1.1rem}
 .sidebar-header a:hover{text-decoration:underline}
-.lang{display:flex;gap:.4rem;font-size:.7rem}
-.lang button{background:none;border:none;cursor:pointer;font-family:inherit;color:#888;padding:0}
-.lang button.active{color:#111;text-decoration:underline}
-.lang span{color:#aaa}
 .static-files{margin-bottom:2rem}
 .search-wrap{margin-bottom:1rem}
 .search-wrap input{width:100%;background:none;border:none;border-bottom:1px solid #aaa;font-family:inherit;font-size:.78rem;color:#111;padding:.2rem 0;outline:none}
@@ -49,26 +45,21 @@ body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;f
 .hljs{background:transparent!important;padding:0!important}
 </style>
 </head>
-<body class="de">
+<body>
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="#" onclick="showWelcome()">48grad.xyz</a>
-      <div class="lang">
-        <button onclick="setLang('de')" id="btn-de" class="active">DE</button>
-        <span>/</span>
-        <button onclick="setLang('en')" id="btn-en">EN</button>
-      </div>
     </div>
     <div class="static-files">
       <div class="tree-file" onclick="loadFile('README.md',this)">README.md</div>
       <div class="tree-file" onclick="loadFile('LICENSE',this)">LICENSE</div>
     </div>
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Suche …" oninput="onSearch(this.value)">
+      <input type="text" id="search-input" placeholder="Search …" oninput="onSearch(this.value)">
     </div>
     <div class="tree" id="tree">
-      <div>Lade …</div>
+      <div>Loading …</div>
     </div>
     <div class="sidebar-footer">
       <a href="https://github.com/48grad/48grad.xyz" class="gh-link" target="_blank">
@@ -82,8 +73,7 @@ body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;f
   </aside>
   <main class="main" id="main">
     <div class="welcome" id="welcome">
-      <p class="t-de">Wähle eine Datei aus der Struktur links.</p>
-      <p class="t-en" style="display:none">Select a file from the tree on the left.</p>
+      <p>Select a file from the tree on the left.</p>
     </div>
   </main>
 </div>
@@ -97,15 +87,6 @@ const EM={yml:'yaml',yaml:'yaml',json:'json',js:'javascript',ts:'typescript',
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 const $=id=>document.getElementById(id);
 const $m=$('main'),$t=$('tree'),$s=$('search-input');
-const $d=$('btn-de'),$e=$('btn-en');
-
-function setLang(l){
-  document.body.className=l;
-  $d.classList.toggle('active',l==='de');
-  $e.classList.toggle('active',l==='en');
-  document.querySelectorAll('.t-de').forEach(e=>e.style.display=l==='de'?'':'none');
-  document.querySelectorAll('.t-en').forEach(e=>e.style.display=l==='en'?'':'none');
-}
 
 function buildTreeFromFlat(items,c,depth=0){
   const dirs={},files=[];
@@ -172,7 +153,7 @@ async function loadFile(path,el){
   if(aE)aE.classList.remove('active');
   el.classList.add('active');
   aE=el;
-  if(!fC[path]){$m.innerHTML='Datei nicht gefunden.';return}
+  if(!fC[path]){$m.innerHTML='File not found.';return}
   if(rC[path]){$m.innerHTML=rC[path];return}
   const ext=path.split('.').pop().toLowerCase(),isMd=ext==='md';
   const lang=EM[ext];
@@ -216,7 +197,7 @@ function doSearch(q){
   });
   $t.innerHTML='';
   if(!res.length){
-    $t.innerHTML='<div style="font-size:.7rem;color:#888">Keine Ergebnisse.</div>';
+    $t.innerHTML='<div style="font-size:.7rem;color:#888">No results.</div>';
     return;
   }
   const fg=document.createDocumentFragment();
@@ -263,11 +244,8 @@ function revealInTree(path){
 }
 
 function showWelcome(){
-  $m.innerHTML='<div class="welcome" id="welcome"><p class="t-de">Wähle eine Datei aus der Struktur links.</p><p class="t-en" style="display:none">Select a file from the tree on the left.</p></div>';
+  $m.innerHTML='<div class="welcome" id="welcome"><p>Select a file from the tree on the left.</p></div>';
   if(aE){aE.classList.remove('active');aE=null}
-  const l=document.body.className;
-  document.querySelectorAll('.t-de').forEach(e=>e.style.display=l==='de'?'':'none');
-  document.querySelectorAll('.t-en').forEach(e=>e.style.display=l==='en'?'':'none');
 }
 
 (async()=>{
@@ -281,7 +259,7 @@ function showWelcome(){
     $('build-info').textContent=`Build: ${data.buildTime?.substring(0,10)||'–'} · ${data.fileCount} files`;
     $t.innerHTML='';
     buildTreeFromFlat(aF,$t);
-  }catch(e){$t.innerHTML='Fehler beim Laden.'}
+  }catch(e){$t.innerHTML='Failed to load.'}
 })();
 </script>
 </body>

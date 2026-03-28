@@ -1,8 +1,7 @@
 # 48grad.xyz
 
-![Alt text](https://static.vecteezy.com/system/resources/previews/017/297/036/non_2x/great-white-shark-png.png "a title")
+A growing collection of guides covering all things IT — networking, Linux, infrastructure as code, and whatever else comes up along the way.
 
+Browse the guides at [48grad.xyz](https://48grad.xyz)
 
-test
-
-HALLO WORLD!
+this website is vibe coded ahh fuck ^lol
