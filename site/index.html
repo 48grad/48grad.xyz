@@ -72,9 +72,6 @@ body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;f
     </div>
   </aside>
   <main class="main" id="main">
-    <div class="welcome" id="welcome">
-      <p>Select a file from the tree on the left.</p>
-    </div>
   </main>
 </div>
 <script>
@@ -244,7 +241,8 @@ function revealInTree(path){
 }
 
 function showWelcome(){
-  $m.innerHTML='<div class="welcome" id="welcome"><p>Select a file from the tree on the left.</p></div>';
+  if(fC['README.md']){loadFile('README.md',document.querySelector('.static-files .tree-file'));return}
+  $m.innerHTML='';
   if(aE){aE.classList.remove('active');aE=null}
 }
 
@@ -259,6 +257,7 @@ function showWelcome(){
     $('build-info').textContent=`Build: ${data.buildTime?.substring(0,10)||'–'} · ${data.fileCount} files`;
     $t.innerHTML='';
     buildTreeFromFlat(aF,$t);
+    if(fC['README.md'])loadFile('README.md',document.querySelector('.static-files .tree-file'));
   }catch(e){$t.innerHTML='Failed to load.'}
 })();
 </script>
