@@ -280,7 +280,14 @@ function showWelcome(){
     $('build-info').textContent=data.commitHash?`Build: ${data.commitHash} · ${data.buildTime?.substring(0,10)}`:'';
     $t.innerHTML='';
     buildTreeFromFlat(aF,$t);
-    if(fC['README.md'])loadFile('README.md',document.querySelector('.static-files .tree-file'));
+    const readmeEl=document.querySelector('.static-files .tree-file');
+    if(fC['README.md']&&readmeEl){
+      const tryLoad=()=>{
+        if(typeof marked!=='undefined'&&typeof DOMPurify!=='undefined')loadFile('README.md',readmeEl);
+        else setTimeout(tryLoad,50);
+      };
+      tryLoad();
+    }
   }catch(e){$t.innerHTML='Failed to load.'}
 })();
 </script>
