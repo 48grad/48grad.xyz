@@ -1,5 +1,6 @@
-import { readdir, readFile, writeFile, cp } from 'fs/promises';
-import { join, relative, extname } from 'path';
+import { readdir, readFile, writeFile } from 'fs/promises';
+import { execSync } from 'child_process';
+import { join, relative } from 'path';
 
 const GUIDES_DIR = 'guides';
 const SITE_DIR   = 'site';
@@ -41,12 +42,18 @@ async function build() {
   // 3. Sort tree alphabetically
   tree.sort((a, b) => a.path.localeCompare(b.path));
 
-  // 4. Write data.json into site/
+  // 4. Get commit hash
+  let commitHash = process.env.GITHUB_SHA?.substring(0, 7) || '';
+  if (!commitHash) {
+    try { commitHash = execSync('git rev-parse --short HEAD').toString().trim(); } catch {}
+  }
+
+  // 5. Write data.json into site/
   const data = {
     tree,
     contents,
     buildTime: new Date().toISOString(),
-    fileCount: tree.length,
+    commitHash,
   };
 
   await writeFile(OUTPUT, JSON.stringify(data));

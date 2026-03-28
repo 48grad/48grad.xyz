@@ -254,7 +254,7 @@ function showWelcome(){
     Object.assign(fC,data.contents);
     aF=data.tree;
     aF.forEach(i=>i._lp=i.path.toLowerCase());
-    $('build-info').textContent=`Build: ${data.buildTime?.substring(0,10)||'–'} · ${data.fileCount} files`;
+    $('build-info').textContent=data.commitHash?`${data.buildTime?.substring(0,10)} · ${data.commitHash}`:'';
     $t.innerHTML='';
     buildTreeFromFlat(aF,$t);
     if(fC['README.md'])loadFile('README.md',document.querySelector('.static-files .tree-file'));
