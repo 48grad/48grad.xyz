@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>48grad.xyz</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self'; img-src https:; font-src 'none'"/>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js" integrity="sha384-odPBjvtXVM/5hOYIr3A1dB+flh0c3wAT3bSesIOqEGmyUA4JoKf/YTWy0XKOYAY7" crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js" integrity="sha384-+VfUPEb0PdtChMwmBcBmykRMDd+v6D/oFmB3rZM/puCMDYcIvF968OimRh4KQY9a" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#c8c8c4;color:#111;font-family:'Courier New',Courier,monospace;font-size:15px;line-height:1.65}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:max-content;min-width:180px;flex-shrink:0;border-right:1px solid #aaa;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:2rem 1.2rem 1rem}
+.sidebar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.sidebar-header a{color:#111;text-decoration:none;font-size:1.1rem}
+.sidebar-header a:hover{text-decoration:underline}
+.lang{display:flex;gap:.4rem;font-size:.7rem}
+.lang button{background:none;border:none;cursor:pointer;font-family:inherit;color:#888;padding:0}
+.lang button.active{color:#111;text-decoration:underline}
+.lang span{color:#aaa}
+.static-files{margin-bottom:2rem}
+.search-wrap{margin-bottom:1rem}
+.search-wrap input{width:100%;background:none;border:none;border-bottom:1px solid #aaa;font-family:inherit;font-size:.78rem;color:#111;padding:.2rem 0;outline:none}
+.search-wrap input::placeholder{color:#999}
+.search-wrap input:focus{border-bottom-color:#555}
+.search-result-snippet{font-size:.65rem;color:#888;padding-left:.5rem}
+.search-result-snippet mark{background:none;color:#111;font-weight:700}
+.tree{font-size:.88rem;overflow-y:auto;flex-grow:1}
+.tree-folder{margin-bottom:.2rem}
+.tree-folder-name{display:flex;align-items:center;gap:.35rem;cursor:pointer;color:#555;text-transform:uppercase;font-size:.72rem;letter-spacing:.1em;padding:.2rem 0}
+.tree-children{padding-left:.8rem;border-left:1px solid #bbb;margin-left:.3rem;display:none}
+.tree-children.open{display:block}
+.tree-file{padding:.15rem 0;cursor:pointer;color:#444;font-size:.88rem}
+.tree-file:hover,.tree-file.active{color:#111;text-decoration:underline}
+.sidebar-footer{margin-top:auto;padding-top:1rem}
+.gh-link{display:flex;flex-direction:column;text-decoration:none;color:#777;font-size:.62rem}
+.gh-link-row{display:flex;align-items:center;gap:4px}
+.gh-link svg{fill:#777;flex-shrink:0}
+.gh-link:hover{color:#111}
+.gh-link:hover svg{fill:#111}
+.build-info{display:block;font-size:.55rem;color:#999;margin-top:4px;white-space:nowrap}
+.main{flex:1;padding:2.5rem 3rem 6rem;max-width:720px}
+.breadcrumb{font-size:.7rem;color:#888;margin-bottom:1.5rem}
+.content h1{font-size:1.4rem;font-weight:400;margin-bottom:1rem;border-bottom:1px solid #aaa}
+.content pre{background:#b0b0ac;padding:1rem;border-left:2px solid #888;overflow-x:auto;margin-bottom:1rem}
+.raw-text{white-space:pre-wrap;font-family:inherit}
+.content-plain p{margin-bottom:1rem}
+.hljs{background:transparent!important;padding:0!important}
+</style>
+</head>
+<body class="de">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" onclick="showWelcome()">48grad.xyz</a>
+      <div class="lang">
+        <button onclick="setLang('de')" id="btn-de" class="active">DE</button>
+        <span>/</span>
+        <button onclick="setLang('en')" id="btn-en">EN</button>
+      </div>
+    </div>
+    <div class="static-files">
+      <div class="tree-file" onclick="loadFile('README.md',this)">README.md</div>
+      <div class="tree-file" onclick="loadFile('LICENSE',this)">LICENSE</div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Suche …" oninput="onSearch(this.value)">
+    </div>
+    <div class="tree" id="tree">
+      <div>Lade …</div>
+    </div>
+    <div class="sidebar-footer">
+      <a href="https://github.com/48grad/48grad.xyz" class="gh-link" target="_blank">
+        <span class="gh-link-row">
+          <svg width="11" height="11" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          github.com/48grad/48grad.xyz
+        </span>
+        <span class="build-info" id="build-info"></span>
+      </a>
+    </div>
+  </aside>
+  <main class="main" id="main">
+    <div class="welcome" id="welcome">
+      <p class="t-de">Wähle eine Datei aus der Struktur links.</p>
+      <p class="t-en" style="display:none">Select a file from the tree on the left.</p>
+    </div>
+  </main>
+</div>
+<script>
+let aF=[],aE=null;
+const fC={},rC={},dD=new WeakMap();
+const EM={yml:'yaml',yaml:'yaml',json:'json',js:'javascript',ts:'typescript',
+  py:'python',sh:'bash',bash:'bash',toml:'toml',html:'html',css:'css',
+  xml:'xml',sql:'sql',rs:'rust',go:'go'};
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+const $=id=>document.getElementById(id);
+const $m=$('main'),$t=$('tree'),$s=$('search-input');
+const $d=$('btn-de'),$e=$('btn-en');
+
+function setLang(l){
+  document.body.className=l;
+  $d.classList.toggle('active',l==='de');
+  $e.classList.toggle('active',l==='en');
+  document.querySelectorAll('.t-de').forEach(e=>e.style.display=l==='de'?'':'none');
+  document.querySelectorAll('.t-en').forEach(e=>e.style.display=l==='en'?'':'none');
+}
+
+function buildTreeFromFlat(items,c,depth=0){
+  const dirs={},files=[];
+  for(let i=0;i<items.length;i++){
+    const p=items[i].path.split('/');
+    p.length===depth+1?files.push(items[i]):(dirs[p[depth]]||(dirs[p[depth]]=[])).push(items[i]);
+  }
+  const fg=document.createDocumentFragment();
+  Object.keys(dirs).sort().forEach(d=>{
+    const f=document.createElement('div');
+    f.className='tree-folder';
+    f.innerHTML=`<div class="tree-folder-name"><span class="arrow">▶</span>${esc(d)}</div><div class="tree-children"></div>`;
+    dD.set(f,{items:dirs[d],depth:depth+1});
+    fg.appendChild(f);
+  });
+  files.sort((a,b)=>a.path.localeCompare(b.path)).forEach(i=>{
+    const f=document.createElement('div');
+    f.className='tree-file';
+    f.textContent=i.path.split('/')[depth];
+    f.dataset.path=i.path;
+    fg.appendChild(f);
+  });
+  c.appendChild(fg);
+}
+
+$t.addEventListener('click',e=>{
+  const rv=e.target.closest('[data-reveal]');
+  if(rv)return revealInTree(rv.dataset.reveal);
+  const fi=e.target.closest('.tree-file[data-path]');
+  if(fi)return loadFile(fi.dataset.path,fi);
+  const la=e.target.closest('.tree-folder-name');
+  if(!la)return;
+  const fo=la.parentElement,ch=fo.querySelector('.tree-children');
+  la.classList.toggle('open');
+  ch.classList.toggle('open');
+  if(!ch.hasChildNodes()){
+    const d=dD.get(fo);
+    if(d)buildTreeFromFlat(d.items,ch,d.depth);
+  }
+});
+
+let hR=!1;
+function loadHljs(){
+  if(hR)return Promise.resolve();
+  return new Promise(r=>{
+    const c=document.createElement('link');
+    c.rel='stylesheet';
+    c.href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+    c.integrity='sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L';
+    c.crossOrigin='anonymous';
+    document.head.appendChild(c);
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js';
+    s.integrity='sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp';
+    s.crossOrigin='anonymous';
+    s.onload=()=>{hR=!0;r()};
+    document.head.appendChild(s);
+  });
+}
+
+const toP=t=>t.trim().split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,' ')}</p>`).join('');
+
+async function loadFile(path,el){
+  if(aE)aE.classList.remove('active');
+  el.classList.add('active');
+  aE=el;
+  if(!fC[path]){$m.innerHTML='Datei nicht gefunden.';return}
+  if(rC[path]){$m.innerHTML=rC[path];return}
+  const ext=path.split('.').pop().toLowerCase(),isMd=ext==='md';
+  const lang=EM[ext];
+  let body;
+  if(isMd) body=DOMPurify.sanitize(marked.parse(fC[path]));
+  else if(lang){
+    body=`<div class="raw-text"><code class="language-${esc(lang)}">${esc(fC[path])}</code></div>`;
+  } else body=`<div class="content-plain">${toP(fC[path])}</div>`;
+  $m.innerHTML=`<div class="breadcrumb">${esc(path).replace(/\//g,' / ')}</div><div class="content">${body}</div>`;
+  if(!isMd&&lang){
+    await loadHljs();
+    const b=$m.querySelector('code');
+    if(b)hljs.highlightElement(b);
+  }
+  rC[path]=$m.innerHTML;
+}
+
+function getSnippet(t,q){
+  const idx=t.toLowerCase().indexOf(q.toLowerCase());
+  if(idx===-1)return null;
+  const s=Math.max(0,idx-30),e=Math.min(t.length,idx+q.length+30);
+  const raw=t.slice(s,e).replace(/\n/g,' ');
+  const escaped=esc(raw);
+  const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+  return(s>0?'…':'')+escaped.replace(re,m=>`<mark>${m}</mark>`)+(e<t.length?'…':'');
+}
+
+let sT=null,lC={};
+function onSearch(q){
+  clearTimeout(sT);
+  if(!q.trim()){$t.innerHTML='';buildTreeFromFlat(aF,$t);return}
+  sT=setTimeout(()=>doSearch(q.trim()),150);
+}
+
+function doSearch(q){
+  const ql=q.toLowerCase();
+  const res=aF.filter(i=>{
+    if(i._lp.includes(ql))return!0;
+    if(!lC[i.path]&&fC[i.path])lC[i.path]=fC[i.path].toLowerCase();
+    return lC[i.path]&&lC[i.path].includes(ql);
+  });
+  $t.innerHTML='';
+  if(!res.length){
+    $t.innerHTML='<div style="font-size:.7rem;color:#888">Keine Ergebnisse.</div>';
+    return;
+  }
+  const fg=document.createDocumentFragment();
+  res.forEach(i=>{
+    const sn=fC[i.path]?getSnippet(fC[i.path],q):null;
+    const f=document.createElement('div');
+    f.style.marginBottom='.4rem';
+    f.innerHTML=`<div class="tree-file" data-reveal="${esc(i.path)}">${esc(i.path)}</div>${sn?`<div class="search-result-snippet">${sn}</div>`:''}`;
+    fg.appendChild(f);
+  });
+  $t.appendChild(fg);
+}
+
+function revealInTree(path){
+  $s.value='';
+  $t.innerHTML='';
+  buildTreeFromFlat(aF,$t);
+  const parts=path.split('/');
+  let c=$t;
+  for(let i=0;i<parts.length-1;i++){
+    const folder=Array.from(c.querySelectorAll(':scope > .tree-folder')).find(f=>{
+      const n=f.querySelector('.tree-folder-name');
+      return n&&n.textContent.replace('▶','').trim()===parts[i];
+    });
+    if(!folder)return;
+    const la=folder.querySelector('.tree-folder-name');
+    const ch=folder.querySelector('.tree-children');
+    if(!ch.classList.contains('open')){
+      la.classList.toggle('open');
+      ch.classList.toggle('open');
+      if(!ch.hasChildNodes()){
+        const d=dD.get(folder);
+        if(d)buildTreeFromFlat(d.items,ch,d.depth);
+      }
+    }
+    c=ch;
+  }
+  const fe=Array.from(c.querySelectorAll(':scope > .tree-file'))
+    .find(f=>f.textContent.trim()===parts[parts.length-1]);
+  if(fe){
+    fe.scrollIntoView({block:'nearest',behavior:'smooth'});
+    loadFile(fe.dataset.path,fe);
+  }
+}
+
+function showWelcome(){
+  $m.innerHTML='<div class="welcome" id="welcome"><p class="t-de">Wähle eine Datei aus der Struktur links.</p><p class="t-en" style="display:none">Select a file from the tree on the left.</p></div>';
+  if(aE){aE.classList.remove('active');aE=null}
+  const l=document.body.className;
+  document.querySelectorAll('.t-de').forEach(e=>e.style.display=l==='de'?'':'none');
+  document.querySelectorAll('.t-en').forEach(e=>e.style.display=l==='en'?'':'none');
+}
+
+(async()=>{
+  try{
+    const res=await fetch('/data.json');
+    if(!res.ok)throw new Error(res.status);
+    const data=await res.json();
+    Object.assign(fC,data.contents);
+    aF=data.tree;
+    aF.forEach(i=>i._lp=i.path.toLowerCase());
+    $('build-info').textContent=`Build: ${data.buildTime?.substring(0,10)||'–'} · ${data.fileCount} files`;
+    $t.innerHTML='';
+    buildTreeFromFlat(aF,$t);
+  }catch(e){$t.innerHTML='Fehler beim Laden.'}
+})();
+</script>
+</body>
+</html>
