@@ -1,10 +1,12 @@
-import { readdir, readFile, writeFile } from 'fs/promises';
+import { readdir, readFile, writeFile, stat } from 'fs/promises';
 import { execSync } from 'child_process';
 import { join, relative } from 'path';
 
 const GUIDES_DIR = 'guides';
 const SITE_DIR   = 'site';
 const OUTPUT     = join(SITE_DIR, 'data.json');
+const MAX_SIZE   = 1024 * 1024; // 1 MB
+const BINARY_EXT = /\.(png|jpe?g|gif|ico|bmp|webp|svg|mp[34]|wav|ogg|pdf|zip|tar|gz|7z|exe|dll|so|woff2?|ttf|eot)$/i;
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -27,6 +29,9 @@ async function build() {
   const contents = {};
 
   for (const file of allFiles) {
+    if (BINARY_EXT.test(file)) continue;
+    const info = await stat(file);
+    if (info.size > MAX_SIZE) continue;
     const path = relative(GUIDES_DIR, file).replace(/\\/g, '/');
     tree.push({ path, type: 'blob' });
     contents[path] = await readFile(file, 'utf-8');

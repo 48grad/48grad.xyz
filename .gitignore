@@ -2,3 +2,15 @@
 .claude/
 node_modules/
 site/data.json
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

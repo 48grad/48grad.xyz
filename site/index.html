@@ -4,9 +4,11 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>48grad.xyz</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self'; img-src https:; font-src 'none'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3wn0kGckgEA9a7fAp9FmyCxmIoJUAcklNYu5CR5CHLk=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self'; img-src https:; font-src 'none'"/>
+<script>(function(){var s=localStorage.getItem('theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;if(d)document.documentElement.classList.add('dark')})()</script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js" integrity="sha384-odPBjvtXVM/5hOYIr3A1dB+flh0c3wAT3bSesIOqEGmyUA4JoKf/YTWy0XKOYAY7" crossorigin="anonymous"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js" integrity="sha384-+VfUPEb0PdtChMwmBcBmykRMDd+v6D/oFmB3rZM/puCMDYcIvF968OimRh4KQY9a" crossorigin="anonymous"></script>
+<script defer src="app.js"></script>
 <style>
 :root{--bg:#c8c8c4;--fg:#111;--fg2:#444;--fg3:#555;--fg4:#777;--fg5:#888;--fg6:#999;--border:#aaa;--border2:#bbb;--pre-bg:#b0b0ac;--pre-border:#888;--search-focus:#555;--mark-fg:#111}
 .dark{--bg:#1a1a1a;--fg:#ccc;--fg2:#aaa;--fg3:#999;--fg4:#888;--fg5:#777;--fg6:#666;--border:#333;--border2:#444;--pre-bg:#252525;--pre-border:#555;--search-focus:#aaa;--mark-fg:#fff}
@@ -85,240 +87,33 @@ body{background:var(--bg);color:var(--fg);font-family:'Courier New',Courier,mono
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <a href="#" onclick="showWelcome()">48grad.xyz</a>
+      <a href="#">48grad.xyz</a>
     </div>
     <div class="static-files">
-      <div class="tree-file" onclick="loadFile('README.md',this)">README.md</div>
-      <div class="tree-file" onclick="loadFile('LICENSE',this)">LICENSE</div>
+      <div class="tree-file" data-file="README.md">README.md</div>
+      <div class="tree-file" data-file="LICENSE">LICENSE</div>
     </div>
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Search …" oninput="onSearch(this.value)">
+      <input type="text" id="search-input" placeholder="Search …">
     </div>
     <div class="tree" id="tree">
       <div>Loading …</div>
     </div>
     <div class="sidebar-footer">
-      <a href="https://github.com/48grad/48grad.xyz" class="gh-link" target="_blank">
+      <a href="https://github.com/48grad/48grad.xyz" class="gh-link" target="_blank" rel="noopener">
         <svg width="11" height="11" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         github.com/48grad/48grad.xyz
       </a>
       <div class="footer-row">
         <span class="build-info" id="build-info"></span>
-        <label class="theme-toggle"><input type="checkbox" id="theme-cb" onchange="toggleTheme(this.checked)"><span></span></label>
+        <label class="theme-toggle" aria-label="Toggle dark mode"><input type="checkbox" id="theme-cb"><span></span></label>
       </div>
     </div>
   </aside>
-  <div class="sidebar-overlay" onclick="document.querySelector('.sidebar').classList.remove('open')"></div>
+  <div class="sidebar-overlay"></div>
   <main class="main" id="main">
-    <button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <button class="menu-btn">☰</button>
   </main>
 </div>
-<script>
-function toggleTheme(dark){
-  document.documentElement.classList.toggle('dark',dark);
-  localStorage.setItem('theme',dark?'dark':'light');
-}
-(()=>{
-  const saved=localStorage.getItem('theme');
-  const dark=saved?saved==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;
-  document.documentElement.classList.toggle('dark',dark);
-  document.getElementById('theme-cb').checked=dark;
-})();
-
-let aF=[],aE=null;
-const fC={},rC={},dD=new WeakMap();
-const EM={yml:'yaml',yaml:'yaml',json:'json',js:'javascript',ts:'typescript',
-  py:'python',sh:'bash',bash:'bash',toml:'toml',html:'html',css:'css',
-  xml:'xml',sql:'sql',rs:'rust',go:'go'};
-
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-const $=id=>document.getElementById(id);
-const $m=$('main'),$t=$('tree'),$s=$('search-input');
-
-function buildTreeFromFlat(items,c,depth=0){
-  const dirs={},files=[];
-  for(let i=0;i<items.length;i++){
-    const p=items[i].path.split('/');
-    p.length===depth+1?files.push(items[i]):(dirs[p[depth]]||(dirs[p[depth]]=[])).push(items[i]);
-  }
-  const fg=document.createDocumentFragment();
-  Object.keys(dirs).sort().forEach(d=>{
-    const f=document.createElement('div');
-    f.className='tree-folder';
-    f.innerHTML=`<div class="tree-folder-name"><span class="arrow">▶</span>${esc(d)}</div><div class="tree-children"></div>`;
-    dD.set(f,{items:dirs[d],depth:depth+1});
-    fg.appendChild(f);
-  });
-  files.sort((a,b)=>a.path.localeCompare(b.path)).forEach(i=>{
-    const f=document.createElement('div');
-    f.className='tree-file';
-    f.textContent=i.path.split('/')[depth];
-    f.dataset.path=i.path;
-    fg.appendChild(f);
-  });
-  c.appendChild(fg);
-}
-
-$t.addEventListener('click',e=>{
-  const rv=e.target.closest('[data-reveal]');
-  if(rv)return revealInTree(rv.dataset.reveal);
-  const fi=e.target.closest('.tree-file[data-path]');
-  if(fi)return loadFile(fi.dataset.path,fi);
-  const la=e.target.closest('.tree-folder-name');
-  if(!la)return;
-  const fo=la.parentElement,ch=fo.querySelector('.tree-children');
-  la.classList.toggle('open');
-  ch.classList.toggle('open');
-  if(!ch.hasChildNodes()){
-    const d=dD.get(fo);
-    if(d)buildTreeFromFlat(d.items,ch,d.depth);
-  }
-});
-
-let hR=!1;
-function loadHljs(){
-  if(hR)return Promise.resolve();
-  return new Promise(r=>{
-    const c=document.createElement('link');
-    c.rel='stylesheet';
-    c.href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
-    c.integrity='sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L';
-    c.crossOrigin='anonymous';
-    document.head.appendChild(c);
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js';
-    s.integrity='sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp';
-    s.crossOrigin='anonymous';
-    s.onload=()=>{hR=!0;r()};
-    document.head.appendChild(s);
-  });
-}
-
-const toP=t=>t.trim().split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,' ')}</p>`).join('');
-
-async function loadFile(path,el){
-  if(aE)aE.classList.remove('active');
-  el.classList.add('active');
-  aE=el;
-  document.querySelector('.sidebar').classList.remove('open');
-  if(!fC[path]){$m.innerHTML='File not found.';return}
-  if(rC[path]){$m.innerHTML=rC[path];return}
-  const ext=path.split('.').pop().toLowerCase(),isMd=ext==='md';
-  const lang=EM[ext];
-  let body;
-  if(isMd) body=DOMPurify.sanitize(marked.parse(fC[path]));
-  else if(lang){
-    body=`<div class="raw-text"><code class="language-${esc(lang)}">${esc(fC[path])}</code></div>`;
-  } else body=`<div class="content-plain">${toP(fC[path])}</div>`;
-  const mb='<button class="menu-btn" onclick="document.querySelector(\'.sidebar\').classList.toggle(\'open\')">☰</button>';
-  $m.innerHTML=`<div class="breadcrumb">${mb}${esc(path).replace(/\//g,' / ')}</div><div class="content">${body}</div>`;
-  if(!isMd&&lang){
-    await loadHljs();
-    const b=$m.querySelector('code');
-    if(b)hljs.highlightElement(b);
-  }
-  rC[path]=$m.innerHTML;
-}
-
-function getSnippet(t,q){
-  const idx=t.toLowerCase().indexOf(q.toLowerCase());
-  if(idx===-1)return null;
-  const s=Math.max(0,idx-30),e=Math.min(t.length,idx+q.length+30);
-  const raw=t.slice(s,e).replace(/\n/g,' ');
-  const escaped=esc(raw);
-  const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
-  return(s>0?'…':'')+escaped.replace(re,m=>`<mark>${m}</mark>`)+(e<t.length?'…':'');
-}
-
-let sT=null,lC={};
-function onSearch(q){
-  clearTimeout(sT);
-  if(!q.trim()){$t.innerHTML='';buildTreeFromFlat(aF,$t);return}
-  sT=setTimeout(()=>doSearch(q.trim()),150);
-}
-
-function doSearch(q){
-  const ql=q.toLowerCase();
-  const res=aF.filter(i=>{
-    if(i._lp.includes(ql))return!0;
-    if(!lC[i.path]&&fC[i.path])lC[i.path]=fC[i.path].toLowerCase();
-    return lC[i.path]&&lC[i.path].includes(ql);
-  });
-  $t.innerHTML='';
-  if(!res.length){
-    $t.innerHTML='<div style="font-size:.7rem;color:#888">No results.</div>';
-    return;
-  }
-  const fg=document.createDocumentFragment();
-  res.forEach(i=>{
-    const sn=fC[i.path]?getSnippet(fC[i.path],q):null;
-    const f=document.createElement('div');
-    f.style.marginBottom='.4rem';
-    f.innerHTML=`<div class="tree-file" data-reveal="${esc(i.path)}">${esc(i.path)}</div>${sn?`<div class="search-result-snippet">${sn}</div>`:''}`;
-    fg.appendChild(f);
-  });
-  $t.appendChild(fg);
-}
-
-function revealInTree(path){
-  $s.value='';
-  $t.innerHTML='';
-  buildTreeFromFlat(aF,$t);
-  const parts=path.split('/');
-  let c=$t;
-  for(let i=0;i<parts.length-1;i++){
-    const folder=Array.from(c.querySelectorAll(':scope > .tree-folder')).find(f=>{
-      const n=f.querySelector('.tree-folder-name');
-      return n&&n.textContent.replace('▶','').trim()===parts[i];
-    });
-    if(!folder)return;
-    const la=folder.querySelector('.tree-folder-name');
-    const ch=folder.querySelector('.tree-children');
-    if(!ch.classList.contains('open')){
-      la.classList.toggle('open');
-      ch.classList.toggle('open');
-      if(!ch.hasChildNodes()){
-        const d=dD.get(folder);
-        if(d)buildTreeFromFlat(d.items,ch,d.depth);
-      }
-    }
-    c=ch;
-  }
-  const fe=Array.from(c.querySelectorAll(':scope > .tree-file'))
-    .find(f=>f.textContent.trim()===parts[parts.length-1]);
-  if(fe){
-    fe.scrollIntoView({block:'nearest',behavior:'smooth'});
-    loadFile(fe.dataset.path,fe);
-  }
-}
-
-function showWelcome(){
-  if(fC['README.md']){loadFile('README.md',document.querySelector('.static-files .tree-file'));return}
-  $m.innerHTML='';
-  if(aE){aE.classList.remove('active');aE=null}
-}
-
-(async()=>{
-  try{
-    const res=await fetch('/data.json');
-    if(!res.ok)throw new Error(res.status);
-    const data=await res.json();
-    Object.assign(fC,data.contents);
-    aF=data.tree;
-    aF.forEach(i=>i._lp=i.path.toLowerCase());
-    $('build-info').textContent=data.commitHash?`Build: ${data.commitHash} · ${data.buildTime?.substring(0,10)}`:'';
-    $t.innerHTML='';
-    buildTreeFromFlat(aF,$t);
-    const readmeEl=document.querySelector('.static-files .tree-file');
-    if(fC['README.md']&&readmeEl){
-      const tryLoad=()=>{
-        if(typeof marked!=='undefined'&&typeof DOMPurify!=='undefined')loadFile('README.md',readmeEl);
-        else setTimeout(tryLoad,50);
-      };
-      tryLoad();
-    }
-  }catch(e){$t.innerHTML='Failed to load.'}
-})();
-</script>
 </body>
 </html>

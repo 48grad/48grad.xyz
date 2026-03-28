@@ -42,32 +42,22 @@ jobs:
       - name: Block AI scrapers (WAF rule)
         run: |
           echo "--- Block AI Crawlers ---"
-          # Get existing ruleset (if any)
-          EXISTING=$(curl -s "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
-            -H "$AUTH" | jq -r '.result.id // empty')
+          RESP=$(curl -s "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" -H "$AUTH")
+          RULESET_ID=$(echo "$RESP" | jq -r '.result.id // empty')
 
-          if [ -n "$EXISTING" ]; then
-            # Update existing ruleset
-            curl -s -X PUT "$API/$ZONE/rulesets/$EXISTING" \
+          # Keep existing rules, remove our managed rule to avoid duplicates
+          OTHER=$(echo "$RESP" | jq '[.result.rules // [] | .[] | select(.description != "Block AI scrapers")]')
+          # Append our rule
+          RULES=$(echo "$OTHER" | jq '. + [{"expression":"(cf.verified_bot_category eq \"AI Crawler\")","action":"block","description":"Block AI scrapers"}]')
+
+          if [ -n "$RULESET_ID" ]; then
+            curl -s -X PUT "$API/$ZONE/rulesets/$RULESET_ID" \
               -H "$AUTH" -H "Content-Type: application/json" \
-              -d '{
-                "rules": [{
-                  "expression": "(cf.verified_bot_category eq \"AI Crawler\")",
-                  "action": "block",
-                  "description": "Block AI scrapers"
-                }]
-              }' | jq '{success}'
+              -d "{\"rules\": $RULES}" | jq '{success}'
           else
-            # Create new ruleset
             curl -s -X PUT "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
               -H "$AUTH" -H "Content-Type: application/json" \
-              -d '{
-                "rules": [{
-                  "expression": "(cf.verified_bot_category eq \"AI Crawler\")",
-                  "action": "block",
-                  "description": "Block AI scrapers"
-                }]
-              }' | jq '{success}'
+              -d "{\"rules\": $RULES}" | jq '{success}'
           fi
 
       - name: Summary

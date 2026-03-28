@@ -3,6 +3,7 @@ name: Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -33,13 +34,14 @@ jobs:
           name: site
           path: site/
 
-      - run: npx wrangler pages deploy site --project-name=48grad-xyz --commit-dirty=true
+      - run: npx wrangler@3 pages deploy site --project-name=48grad-xyz --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   dns:
     needs: deploy
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Ensure custom domain and CNAME
