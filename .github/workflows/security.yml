@@ -39,22 +39,36 @@ jobs:
           call "HSTS" PATCH "settings/security_header" \
             '{"value":{"strict_transport_security":{"enabled":true,"max_age":31536000,"include_subdomains":true,"preload":true,"nosniff":true}}}'
 
-      - name: Bot Fight Mode
-        run: |
-          echo "--- Bot Fight Mode ---"
-          curl -s -X PUT "$API/$ZONE/bot_management" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"fight_mode":true}' | jq '{success, errors}' || echo "Not available on free plan"
-
       - name: Block AI scrapers (WAF rule)
         run: |
           echo "--- Block AI Crawlers ---"
-          curl -s -X POST "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{
-              "rules": [{
-                "expression": "(cf.verified_bot_category eq \"AI Crawler\")",
-                "action": "block",
-                "description": "Block AI scrapers"
-              }]
-            }' | jq '{success, errors}' || echo "Rule may already exist"
+          # Get existing ruleset (if any)
+          EXISTING=$(curl -s "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
+            -H "$AUTH" | jq -r '.result.id // empty')
+
+          if [ -n "$EXISTING" ]; then
+            # Update existing ruleset
+            curl -s -X PUT "$API/$ZONE/rulesets/$EXISTING" \
+              -H "$AUTH" -H "Content-Type: application/json" \
+              -d '{
+                "rules": [{
+                  "expression": "(cf.verified_bot_category eq \"AI Crawler\")",
+                  "action": "block",
+                  "description": "Block AI scrapers"
+                }]
+              }' | jq '{success}'
+          else
+            # Create new ruleset
+            curl -s -X PUT "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
+              -H "$AUTH" -H "Content-Type: application/json" \
+              -d '{
+                "rules": [{
+                  "expression": "(cf.verified_bot_category eq \"AI Crawler\")",
+                  "action": "block",
+                  "description": "Block AI scrapers"
+                }]
+              }' | jq '{success}'
+          fi
+
+      - name: Summary
+        run: echo "Done. Enable Bot Fight Mode manually in Cloudflare Dashboard > Security > Bots."
