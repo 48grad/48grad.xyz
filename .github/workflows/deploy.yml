@@ -32,17 +32,17 @@ jobs:
         run: |
           AUTH="Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}"
 
-          # Register domain in Pages project
-          curl -sf -X POST \
+          echo "=== Register domain in Pages project ==="
+          curl -s -X POST \
             "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/48grad-xyz/domains" \
             -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"name":"48grad.xyz"}' 2>/dev/null || true
+            -d '{"name":"48grad.xyz"}' | jq .
 
-          # CNAME record (Cloudflare auto-flattens for root domain)
-          curl -sf -X POST \
+          echo "=== Create CNAME record ==="
+          curl -s -X POST \
             "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/dns_records" \
             -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"type":"CNAME","name":"48grad.xyz","content":"48grad-xyz.pages.dev","proxied":true}' 2>/dev/null || true
+            -d '{"type":"CNAME","name":"48grad.xyz","content":"48grad-xyz.pages.dev","proxied":true}' | jq .
 
       - name: Delete old deployments
         run: |
