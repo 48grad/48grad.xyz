@@ -3,6 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "A growing collection of IT guides — networking, Linux, infrastructure as code",
+  "author": "48grad",
+  "license": "MIT",
+  "homepage": "https://48grad.xyz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/48grad/48grad.xyz.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node build.js"
   }

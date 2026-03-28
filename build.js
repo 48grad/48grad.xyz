@@ -63,8 +63,17 @@ async function build() {
 
   await writeFile(OUTPUT, JSON.stringify(data));
 
+  // 6. Generate sitemap.xml
+  const today = new Date().toISOString().substring(0, 10);
+  const urls = ['', ...tree.map(f => '#' + f.path)];
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url><loc>https://48grad.xyz/${u}</loc><lastmod>${today}</lastmod></url>`).join('\n')}
+</urlset>`;
+  await writeFile(join(SITE_DIR, 'sitemap.xml'), sitemap);
+
   const ms = (performance.now() - start).toFixed(0);
-  console.log(`Built ${tree.length} files → ${OUTPUT} (${ms}ms)`);
+  console.log(`Built ${tree.length} files + sitemap → ${OUTPUT} (${ms}ms)`);
 }
 
 build().catch(err => {

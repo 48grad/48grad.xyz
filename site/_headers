@@ -8,3 +8,21 @@
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless
+
+/index.html
+  Cache-Control: public, max-age=300
+
+/app.js
+  Cache-Control: public, max-age=86400
+
+/data.json
+  Cache-Control: public, max-age=300
+
+/favicon.svg
+  Cache-Control: public, max-age=604800
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
