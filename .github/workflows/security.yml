@@ -15,67 +15,41 @@ jobs:
       AUTH: "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}"
       API: "https://api.cloudflare.com/client/v4/zones"
     steps:
-      - name: SSL/TLS — Full (Strict)
+      - name: Apply security settings
         run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/ssl" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"strict"}'
+          call() {
+            local label="$1" method="$2" endpoint="$3" data="$4"
+            echo "--- $label ---"
+            RESP=$(curl -s -X "$method" "$API/$ZONE/$endpoint" \
+              -H "$AUTH" -H "Content-Type: application/json" \
+              -d "$data")
+            OK=$(echo "$RESP" | jq -r '.success // false')
+            if [ "$OK" = "true" ]; then echo "OK"; else echo "$RESP" | jq -r '.errors[0].message // "Unknown error"'; fi
+          }
 
-      - name: Always Use HTTPS
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/always_use_https" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"on"}'
+          call "SSL/TLS Strict"           PATCH "settings/ssl"               '{"value":"strict"}'
+          call "Always HTTPS"             PATCH "settings/always_use_https"  '{"value":"on"}'
+          call "Min TLS 1.2"              PATCH "settings/min_tls_version"   '{"value":"1.2"}'
+          call "Security Level High"      PATCH "settings/security_level"    '{"value":"high"}'
+          call "Browser Integrity Check"  PATCH "settings/browser_check"     '{"value":"on"}'
+          call "Email Obfuscation"        PATCH "settings/email_obfuscation" '{"value":"on"}'
+          call "Hotlink Protection"       PATCH "settings/hotlink_protection" '{"value":"on"}'
+          call "Server Side Excludes"     PATCH "settings/server_side_exclude" '{"value":"on"}'
 
-      - name: Minimum TLS 1.2
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/min_tls_version" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"1.2"}'
-
-      - name: Enable HSTS (1 year, includeSubDomains, preload)
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/security_header" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":{"strict_transport_security":{"enabled":true,"max_age":31536000,"include_subdomains":true,"preload":true,"nosniff":true}}}'
-
-      - name: Security Level — High
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/security_level" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"high"}'
-
-      - name: Browser Integrity Check
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/browser_check" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"on"}'
-
-      - name: Email Obfuscation
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/email_obfuscation" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"on"}'
-
-      - name: Hotlink Protection
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/hotlink_protection" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"on"}'
+          call "HSTS" PATCH "settings/security_header" \
+            '{"value":{"strict_transport_security":{"enabled":true,"max_age":31536000,"include_subdomains":true,"preload":true,"nosniff":true}}}'
 
       - name: Bot Fight Mode
         run: |
-          curl -sf -X POST "$API/$ZONE/bot_management" \
+          echo "--- Bot Fight Mode ---"
+          curl -s -X PUT "$API/$ZONE/bot_management" \
             -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"fight_mode":true}' 2>/dev/null || \
-          curl -sf -X PUT "$API/$ZONE/bot_management" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"fight_mode":true}' 2>/dev/null || true
+            -d '{"fight_mode":true}' | jq '{success, errors}' || echo "Not available on free plan"
 
-      - name: Block AI scrapers (robots.txt WAF rule)
+      - name: Block AI scrapers (WAF rule)
         run: |
-          # Create WAF custom rule to block known AI crawlers
-          curl -sf -X POST "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
+          echo "--- Block AI Crawlers ---"
+          curl -s -X POST "$API/$ZONE/rulesets/phases/http_request_firewall_custom/entrypoint" \
             -H "$AUTH" -H "Content-Type: application/json" \
             -d '{
               "rules": [{
@@ -83,13 +57,4 @@ jobs:
                 "action": "block",
                 "description": "Block AI scrapers"
               }]
-            }' 2>/dev/null || true
-
-      - name: Scrape Shield — Server Side Excludes
-        run: |
-          curl -sf -X PATCH "$API/$ZONE/settings/server_side_exclude" \
-            -H "$AUTH" -H "Content-Type: application/json" \
-            -d '{"value":"on"}'
-
-      - name: Summary
-        run: echo "Security settings applied to zone $ZONE"
+            }' | jq '{success, errors}' || echo "Rule may already exist"
