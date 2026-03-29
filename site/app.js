@@ -230,7 +230,7 @@ $m.addEventListener('click',function(e){
     Object.assign(fC,data.contents);
     aF=data.tree;
     aF.forEach(function(i){i._lp=i.path.toLowerCase()});
-    document.getElementById('build-info').textContent=data.commitHash?'Build: '+(data.branch?data.branch+' ':'')+ data.commitHash+' \u00B7 '+(data.buildTime||'').substring(0,10):'';
+    document.getElementById('build-info').textContent=data.commitHash?'Build: '+(data.branch?'['+data.branch+'] ':'')+data.commitHash+' \u00B7 '+(data.buildTime||'').substring(0,10):'';
     $t.innerHTML='';
     buildTreeFromFlat(aF,$t);
     var readmeEl=document.querySelector('.static-files .tree-file');
