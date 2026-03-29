@@ -47,10 +47,14 @@ async function build() {
   // 3. Sort tree alphabetically
   tree.sort((a, b) => a.path.localeCompare(b.path));
 
-  // 4. Get commit hash
+  // 4. Get commit hash and branch
   let commitHash = process.env.GITHUB_SHA?.substring(0, 7) || '';
   if (!commitHash) {
     try { commitHash = execSync('git rev-parse --short HEAD').toString().trim(); } catch {}
+  }
+  let branch = process.env.GITHUB_REF_NAME || '';
+  if (!branch) {
+    try { branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim(); } catch {}
   }
 
   // 5. Write data.json into site/
@@ -59,6 +63,7 @@ async function build() {
     contents,
     buildTime: new Date().toISOString(),
     commitHash,
+    branch,
   };
 
   await writeFile(OUTPUT, JSON.stringify(data));

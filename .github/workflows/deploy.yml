@@ -66,7 +66,7 @@ jobs:
 
       - name: Test preview deployment
         run: |
-          URL="https://dev.48grad-xyz.pages.dev"
+          URL="https://dev.48grad.xyz"
           echo "Testing $URL"
 
           # Check HTTP 200
@@ -111,3 +111,14 @@ jobs:
             "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/dns_records" \
             -H "$AUTH" -H "Content-Type: application/json" \
             -d '{"type":"CNAME","name":"48grad.xyz","content":"48grad-xyz.pages.dev","proxied":true}' 2>/dev/null || true
+
+          # Dev subdomain
+          curl -sf -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/48grad-xyz/domains" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"name":"dev.48grad.xyz"}' 2>/dev/null || true
+
+          curl -sf -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/dns_records" \
+            -H "$AUTH" -H "Content-Type: application/json" \
+            -d '{"type":"CNAME","name":"dev","content":"dev.48grad-xyz.pages.dev","proxied":true}' 2>/dev/null || true
