@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump build step and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          YEAR=$(date -u +%Y)
+          MONTH=$(date -u +%-m)
+          PREFIX="${YEAR}.${MONTH}-"
+
+          # Find highest step for this year.month
+          LATEST=$(git tag --list "${PREFIX}*" --sort=-version:refname | head -1)
+          if [ -z "$LATEST" ]; then
+            STEP=1
+          else
+            STEP=$(echo "$LATEST" | awk -F'-' '{print $NF}')
+            STEP=$((STEP + 1))
+          fi
+
+          NEXT="${PREFIX}${STEP}"
+          echo "Tagging $NEXT"
+          git tag "$NEXT"
+          git push origin "$NEXT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          YEAR=$(date -u +%Y)
+          MONTH=$(date -u +%-m)
+          LATEST=$(git tag --list "${YEAR}.${MONTH}-*" --sort=-version:refname | head -1)
+          PREV=$(git tag --list '*.*-*' --sort=-version:refname | sed -n '2p')
+          if [ -n "$PREV" ]; then
+            NOTES=$(git log "${PREV}..${LATEST}" --oneline --no-merges)
+          else
+            NOTES=$(git log "${LATEST}" --oneline --no-merges)
+          fi
+          gh release create "$LATEST" \
+            --title "$LATEST" \
+            --notes "$NOTES"
