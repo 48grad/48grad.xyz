@@ -1,14 +1,18 @@
 (function(){
 'use strict';
 
-/* --- Theme (checkbox init — class already set by inline script) --- */
-function toggleTheme(dark){
+/* --- Theme --- */
+var themeBtn=document.getElementById('theme-btn');
+function updateThemeBtn(){
+  themeBtn.textContent=document.documentElement.classList.contains('dark')?'[light]':'[dark]';
+}
+updateThemeBtn();
+themeBtn.addEventListener('click',function(){
+  var dark=!document.documentElement.classList.contains('dark');
   document.documentElement.classList.toggle('dark',dark);
   localStorage.setItem('theme',dark?'dark':'light');
-}
-var themeCb=document.getElementById('theme-cb');
-themeCb.checked=document.documentElement.classList.contains('dark');
-themeCb.addEventListener('change',function(){toggleTheme(this.checked)});
+  updateThemeBtn();
+});
 
 /* --- State --- */
 var aF=[],aE=null;
