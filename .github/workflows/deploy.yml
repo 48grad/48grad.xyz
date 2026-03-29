@@ -95,12 +95,12 @@ jobs:
           echo "Testing $URL"
 
           # Check HTTP 200
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL")
+          STATUS=$(curl -sL -o /dev/null -w '%{http_code}' "$URL")
           echo "HTTP Status: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: expected 200"; exit 1; }
 
           # Check security headers
-          HEADERS=$(curl -sI "$URL")
+          HEADERS=$(curl -sLI "$URL")
           for H in "x-frame-options" "x-content-type-options" "content-security-policy" "referrer-policy"; do
             echo "$HEADERS" | grep -qi "$H" || { echo "FAIL: missing $H"; exit 1; }
             echo "OK: $H"
