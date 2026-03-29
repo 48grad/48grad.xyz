@@ -15,12 +15,6 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "node build.js",
-    "test": "playwright test",
-    "test:ci": "playwright test --reporter=github"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.44.0",
-    "serve": "^14.2.3"
+    "build": "node build.js"
   }
 }
