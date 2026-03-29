@@ -95,24 +95,24 @@ jobs:
           echo "Testing $URL"
 
           # Check HTTP 200
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL")
+          STATUS=$(curl -sL -o /dev/null -w '%{http_code}' "$URL")
           echo "HTTP Status: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: expected 200"; exit 1; }
 
           # Check security headers
-          HEADERS=$(curl -sI "$URL")
+          HEADERS=$(curl -sLI "$URL")
           for H in "x-frame-options" "x-content-type-options" "content-security-policy" "referrer-policy"; do
             echo "$HEADERS" | grep -qi "$H" || { echo "FAIL: missing $H"; exit 1; }
             echo "OK: $H"
           done
 
           # Check app.js loads
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL/app.js")
+          STATUS=$(curl -sL -o /dev/null -w '%{http_code}' "$URL/app.js")
           echo "app.js: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: app.js not found"; exit 1; }
 
           # Check data.json loads
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL/data.json")
+          STATUS=$(curl -sL -o /dev/null -w '%{http_code}' "$URL/data.json")
           echo "data.json: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: data.json not found"; exit 1; }
 

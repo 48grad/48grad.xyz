@@ -1,0 +1,30 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, dev]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm install
+
+      - run: npm run build
+
+      - name: Verify output
+        run: |
+          [ -f site/data.json ] || { echo "FAIL: data.json missing"; exit 1; }
+          [ -f site/app.js ] || { echo "FAIL: app.js missing"; exit 1; }
+          [ -f site/index.html ] || { echo "FAIL: index.html missing"; exit 1; }
+          echo "Build output OK"
