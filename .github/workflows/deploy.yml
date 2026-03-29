@@ -57,7 +57,7 @@ jobs:
             -d '{"purge_everything":true}'
 
   test:
-    needs: deploy
+    needs: dns
     if: github.ref_name == 'dev'
     runs-on: ubuntu-latest
     steps:
@@ -95,7 +95,6 @@ jobs:
 
   dns:
     needs: deploy
-    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Ensure custom domain and CNAME
