@@ -107,12 +107,12 @@ jobs:
           done
 
           # Check app.js loads
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL/app.js")
+          STATUS=$(curl -sL -o /dev/null -w '%{http_code}' "$URL/app.js")
           echo "app.js: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: app.js not found"; exit 1; }
 
           # Check data.json loads
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL/data.json")
+          STATUS=$(curl -sL -o /dev/null -w '%{http_code}' "$URL/data.json")
           echo "data.json: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: data.json not found"; exit 1; }
 
